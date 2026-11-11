@@ -1,0 +1,92 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Thương hiệu */
+    --chili: 4 78% 53%; /* #E5372B — hành động chính */
+    --aubergine: 292 26% 14%; /* #2B1B2E — khối nền đậm, chữ */
+    --aubergine-soft: 292 18% 24%;
+    --turmeric: 44 100% 48%; /* #F4B400 — đánh giá, khuyến mãi */
+    --basil: 152 56% 28%; /* #1F6F4A — miễn phí giao, thành công */
+
+    /* Token của shadcn/ui */
+    --background: 0 0% 100%;
+    --foreground: 292 20% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 292 20% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 292 20% 12%;
+    --primary: var(--chili);
+    --primary-foreground: 0 0% 100%;
+    --secondary: 60 7% 95%;
+    --secondary-foreground: 292 20% 12%;
+    --muted: 60 7% 95%;
+    --muted-foreground: 292 6% 42%;
+    --accent: 4 90% 96%;
+    --accent-foreground: 4 70% 38%;
+    --destructive: 0 72% 46%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 300 8% 90%;
+    --input: 300 8% 86%;
+    --ring: var(--chili);
+    --radius: 0.875rem;
+  }
+
+  .dark {
+    --background: 292 22% 9%;
+    --foreground: 40 20% 96%;
+    --card: 292 20% 12%;
+    --card-foreground: 40 20% 96%;
+    --popover: 292 20% 12%;
+    --popover-foreground: 40 20% 96%;
+    --primary: 4 80% 58%;
+    --secondary: 292 14% 18%;
+    --secondary-foreground: 40 20% 96%;
+    --muted: 292 14% 18%;
+    --muted-foreground: 292 8% 68%;
+    --accent: 4 40% 20%;
+    --accent-foreground: 4 90% 86%;
+    --border: 292 12% 22%;
+    --input: 292 12% 26%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-background font-sans text-foreground antialiased;
+    font-feature-settings: 'ss01';
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-display tracking-tight;
+  }
+}
+
+@layer utilities {
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
