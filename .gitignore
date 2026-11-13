@@ -13,9 +13,9 @@ dist-ssr
 *.tsbuildinfo
 
 # Env: chỉ commit .env.example và .env.development
-.env
-.env.production
-*.local
+# .env
+# .env.production
+# *.local
 
 # Editor
 .vscode/*
