@@ -2,7 +2,7 @@ import { createBrowserRouter } from 'react-router-dom'
 import { AuthLayout } from '@/components/layout/auth-layout'
 import { MainLayout } from '@/components/layout/main-layout'
 import { RouteError } from '@/app/route-error'
-import { GuestRoute } from '@/routes/guards'
+import { GuestRoute, ProtectedRoute } from '@/routes/guards'
 import { paths } from '@/routes/paths'
 
 // Mỗi trang tách thành chunk riêng (lazy) để tải lần đầu nhẹ hơn
@@ -16,13 +16,18 @@ export const router = createBrowserRouter(
       errorElement: <RouteError />,
       children: [
         {
-          element: <MainLayout />,
+          // Trang chủ là trang kiểm tra phiên với backend thật, nên cần đăng nhập
+          element: <ProtectedRoute />,
           children: [
-            { path: paths.home, lazy: page(() => import('@/pages/home/home-page')) },
-            // Trang cần đăng nhập đặt trong <ProtectedRoute />, vd:
-            // { element: <ProtectedRoute />, children: [{ path: '/orders', lazy: page(() => import('@/pages/orders/orders-page')) }] },
-            { path: '*', lazy: page(() => import('@/pages/not-found-page')) },
+            {
+              path: paths.home,
+              lazy: page(() => import('@/pages/session-test/session-test-page')),
+            },
           ],
+        },
+        {
+          element: <MainLayout />,
+          children: [{ path: '*', lazy: page(() => import('@/pages/not-found-page')) }],
         },
         {
           element: <GuestRoute />,

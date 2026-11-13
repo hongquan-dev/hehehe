@@ -100,4 +100,11 @@ export const authMock = {
     await mockLatency(150, 300)
     localStorage.removeItem(SESSION_KEY)
   },
+
+  async refresh(): Promise<void> {
+    await mockLatency(150, 300)
+    if (!localStorage.getItem(SESSION_KEY)) {
+      throw new ApiError(401, 'REFRESH_TOKEN_INVALID', 'Phiên đăng nhập đã hết hạn')
+    }
+  },
 }

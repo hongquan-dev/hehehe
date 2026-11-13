@@ -1,4 +1,4 @@
-/** Khớp `com.fooddelivery.web.model.ApiResponse` của backend (common-web-lib). */
+/** Khớp `com.fooddelivery.dto.response.ApiResponse` của backend (common-dto-lib). */
 export interface ApiResponse<T> {
   success: boolean
   status: number

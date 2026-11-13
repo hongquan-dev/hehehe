@@ -24,13 +24,22 @@ npm install
 npm run dev          # http://localhost:5173
 ```
 
-Mặc định `VITE_USE_MOCK=true` (`.env.development`), nên app chạy với **dữ liệu giả** và không cần backend.
+Mặc định `VITE_USE_MOCK=false` (`.env.development`), nên app gọi **backend thật**. Chỉ cần chạy trước
+`fd-auth-service` (:8081, cần PostgreSQL) trong `../hahaha`. Mọi request `/api/**` được Vite proxy thẳng tới
+`fd-auth-service` (`VITE_PROXY_TARGET`) sau khi bỏ tiền tố `/api`; cookie `refresh_token` (`Path=/auth`) được đổi
+thành `Path=/api/auth` để trình duyệt gửi kèm. Vì frontend và API chạy cùng origin nên cookie HttpOnly của
+`fd-auth-service` hoạt động, không gặp lỗi CORS.
+
+Khi frontend gọi thêm service khác (order, restaurant...), đổi `VITE_PROXY_TARGET` sang `fd-gateway-service`
+(`http://localhost:8080`) để một proxy chuyển tới mọi service.
+
+Sau khi đăng nhập, trang chủ là trang kiểm tra phiên: gọi API thử `GET /auth/test/ping`, làm mới phiên bằng
+`POST /auth/refresh`, đếm ngược thời hạn access token và ghi nhật ký request. Muốn thấy access token hết hạn
+nhanh, đặt `auth.jwt.access-ttl=1m` trong `application.properties` của `fd-auth-service` khi thử.
+
+Chạy không cần backend: tạo file `.env.local` với `VITE_USE_MOCK=true`, app dùng **dữ liệu giả**.
 Tài khoản thử: `demo` / `matkhau123` (đăng nhập bằng `demo@angi.vn` hoặc `0901 234 567` cũng được).
 Tài khoản `bi.khoa` / `matkhau123` dùng để thử trường hợp tài khoản bị khoá.
-
-Gọi backend thật: tạo file `.env.local` với `VITE_USE_MOCK=false`. Mọi request `/api/**` được Vite proxy tới
-gateway (`VITE_PROXY_TARGET`, mặc định `:8080`) sau khi bỏ tiền tố `/api`. Vì frontend và API chạy cùng origin
-nên cookie HttpOnly của `fd-auth-service` hoạt động, không gặp lỗi CORS.
 
 | Lệnh | Việc |
 | --- | --- |

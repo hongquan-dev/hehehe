@@ -3,7 +3,11 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { MotionConfig } from 'motion/react'
 import { Toaster } from '@/components/ui/sonner'
 import { useSessionBootstrap } from '@/features/auth/hooks/use-auth'
+import { startRequestLog } from '@/features/session-test/store/request-log.store'
 import { queryClient } from '@/lib/query-client'
+
+// Trước request đầu tiên, để nhật ký của trang kiểm tra phiên có cả lần GET /auth/me khi mở app
+startRequestLog()
 
 // Chỉ tải devtools khi chạy dev, không lọt vào bản build
 const ReactQueryDevtools = import.meta.env.DEV

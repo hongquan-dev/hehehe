@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
-  const gateway = env.VITE_PROXY_TARGET || 'http://localhost:8080'
+  const backend = env.VITE_PROXY_TARGET || 'http://localhost:8081'
 
   return {
     plugins: [react()],
@@ -31,13 +31,16 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       port: 5173,
-      // Mọi request /api/** đi qua API Gateway (Spring Cloud Gateway), bỏ tiền tố /api.
-      // Cùng origin với Vite nên cookie HttpOnly của fd-auth-service hoạt động, không vướng CORS.
+      // Mọi request /api/** được chuyển tới VITE_PROXY_TARGET (hiện là fd-auth-service), bỏ tiền tố /api.
+      // Trình duyệt chỉ thấy origin của Vite nên cookie HttpOnly của fd-auth-service hoạt động, không vướng CORS.
       proxy: {
         '/api': {
-          target: gateway,
+          target: backend,
           changeOrigin: true,
           rewrite: (p) => p.replace(/^\/api/, ''),
+          // Backend đặt cookie refresh_token với Path=/auth, nhưng trình duyệt gọi /api/auth/...: không đổi path
+          // thì cookie không bao giờ được gửi kèm POST /api/auth/refresh và mọi lần làm mới phiên đều lỗi 401
+          cookiePathRewrite: { '/auth': '/api/auth' },
         },
       },
     },
