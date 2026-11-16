@@ -6,8 +6,13 @@ import { useLogout } from '@/features/auth/hooks/use-auth'
 import { useAuthStore } from '@/features/auth/store/auth.store'
 import { RequestLog } from '@/features/session-test/components/request-log'
 import { TokenCountdown } from '@/features/session-test/components/token-countdown'
-import { usePing, useRefreshSession } from '@/features/session-test/hooks/use-session-test'
+import {
+  useAuthCall,
+  usePing,
+  useRefreshSession,
+} from '@/features/session-test/hooks/use-session-test'
 import { useRequestLogStore } from '@/features/session-test/store/request-log.store'
+import type { AuthCallResult } from '@/features/session-test/types'
 import { ApiError } from '@/lib/api-error'
 
 /** Trang chủ sau khi đăng nhập: kiểm tra access token, refresh token và đăng xuất với backend thật. */
@@ -16,6 +21,8 @@ export default function SessionTestPage() {
   const ping = usePing()
   const refresh = useRefreshSession()
   const logout = useLogout()
+  const httpCall = useAuthCall('HTTP')
+  const grpcCall = useAuthCall('gRPC')
 
   const callPing = async () => {
     const result = await ping.refetch()
@@ -26,6 +33,12 @@ export default function SessionTestPage() {
   const refreshSession = () =>
     refresh.mutate(undefined, {
       onSuccess: () => toast.success('Đã làm mới phiên'),
+      onError: (error) => toast.error(ApiError.from(error).message),
+    })
+
+  const callAuth = (call: typeof httpCall) =>
+    call.mutate(undefined, {
+      onSuccess: (result) => toast.success(`Đã lấy tài khoản qua ${result.transport}`),
       onError: (error) => toast.error(ApiError.from(error).message),
     })
 
@@ -93,12 +106,62 @@ export default function SessionTestPage() {
                 Làm mới phiên
               </Button>
             </Action>
+            <Action
+              title="Gọi sang dịch vụ khác qua HTTP và gRPC"
+              description="GET /order/test/auth-http và /order/test/auth-grpc đi qua gateway (kiểm tra access token) tới order-service, rồi order-service hỏi auth-service tài khoản của bạn. Hai cách gọi phải trả về cùng một tài khoản."
+            >
+              <div className="flex flex-wrap gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => callAuth(httpCall)}
+                  disabled={httpCall.isPending}
+                >
+                  {httpCall.isPending && <LoaderCircle className="animate-spin" aria-hidden />}
+                  Gọi qua HTTP
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => callAuth(grpcCall)}
+                  disabled={grpcCall.isPending}
+                >
+                  {grpcCall.isPending && <LoaderCircle className="animate-spin" aria-hidden />}
+                  Gọi qua gRPC
+                </Button>
+              </div>
+              <AuthCallResults
+                results={[httpCall.data, grpcCall.data].filter(
+                  (r): r is AuthCallResult => r !== undefined,
+                )}
+              />
+            </Action>
           </section>
         </div>
 
         <RequestLog />
       </main>
     </div>
+  )
+}
+
+// Kết quả lần gọi gần nhất của mỗi cách gọi, để so thời gian và thấy hai bên trả về cùng một tài khoản
+function AuthCallResults({ results }: { results: AuthCallResult[] }) {
+  if (results.length === 0) return null
+  return (
+    <dl className="mt-4 divide-y border-y text-sm">
+      {results.map((result) => (
+        <div
+          key={result.transport}
+          className="grid grid-cols-[3.5rem_minmax(0,1fr)_auto] items-baseline gap-x-3 py-2.5"
+        >
+          <dt className="font-semibold">{result.transport}</dt>
+          <dd className="min-w-0 truncate">
+            {result.user.username}
+            <span className="text-[13px] text-muted-foreground"> #{result.user.id}</span>
+          </dd>
+          <dd className="tabular-nums text-muted-foreground">{result.elapsedMs} ms</dd>
+        </div>
+      ))}
+    </dl>
   )
 }
 

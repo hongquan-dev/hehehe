@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { authApi } from '@/features/auth/api/auth.api'
 import { useAuthStore } from '@/features/auth/store/auth.store'
 import { sessionTestApi } from '@/features/session-test/api/session-test.api'
+import type { AuthTransport } from '@/features/session-test/types'
 import { ApiError } from '@/lib/api-error'
 
 export const sessionTestKeys = {
@@ -16,6 +17,17 @@ export function usePing() {
     staleTime: 0,
     refetchOnMount: 'always',
     retry: false,
+  })
+}
+
+/**
+ * `GET /order/test/auth-http` hoặc `/order/test/auth-grpc`: order-service lấy user đang đăng nhập từ auth-service qua
+ * cách gọi đã chọn. Dùng mutation vì mỗi lần bấm là một lần đo mới, không cần cache.
+ */
+export function useAuthCall(transport: AuthTransport) {
+  return useMutation({
+    mutationFn:
+      transport === 'HTTP' ? sessionTestApi.callAuthOverHttp : sessionTestApi.callAuthOverGrpc,
   })
 }
 

@@ -9,3 +9,27 @@ export interface PingResponse {
   /** Giờ máy chủ, để tính thời gian còn lại đúng cả khi đồng hồ máy người dùng lệch */
   serverTime: string
 }
+
+/** Khớp `AuthUser` của fd-order-service: user mà auth-service trả về, qua HTTP hay gRPC đều như nhau. */
+export interface AuthUser {
+  id: number
+  username: string
+  /** `null` nếu tài khoản không có số điện thoại */
+  phoneNumber: string | null
+  role: string
+  active: boolean
+}
+
+/** Cách order-service gọi sang auth-service trong API test */
+export type AuthTransport = 'HTTP' | 'gRPC'
+
+/**
+ * Khớp `AuthCallResult` của fd-order-service (`GET /order/test/auth-http`, `GET /order/test/auth-grpc`): cùng một
+ * user lấy từ auth-service qua một cách gọi, và lời gọi đó mất bao lâu.
+ */
+export interface AuthCallResult {
+  transport: AuthTransport
+  /** Thời gian của riêng lời gọi order-service -> auth-service, không gồm đường từ trình duyệt tới gateway */
+  elapsedMs: number
+  user: AuthUser
+}

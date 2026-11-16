@@ -1,4 +1,4 @@
-import type { PingResponse } from '@/features/session-test/types'
+import type { AuthCallResult, AuthTransport, PingResponse } from '@/features/session-test/types'
 import { authMock } from '@/mocks/handlers/auth.mock'
 import { mockLatency } from '@/mocks/utils'
 
@@ -22,4 +22,27 @@ export const sessionTestMock = {
       serverTime: new Date(now).toISOString(),
     }
   },
+
+  callAuthOverHttp: () => mockAuthCall('HTTP'),
+  callAuthOverGrpc: () => mockAuthCall('gRPC'),
+}
+
+// User đang đăng nhập như order-service nhận từ auth-service; gRPC giả lập nhanh hơn HTTP một chút
+async function mockAuthCall(transport: AuthTransport): Promise<AuthCallResult> {
+  const user = await authMock.me()
+  const elapsedMs = Math.round(
+    transport === 'HTTP' ? 8 + Math.random() * 12 : 3 + Math.random() * 6,
+  )
+  await mockLatency(100, 250)
+  return {
+    transport,
+    elapsedMs,
+    user: {
+      id: user.id,
+      username: user.username,
+      phoneNumber: user.phoneNumber,
+      role: user.role,
+      active: user.active,
+    },
+  }
 }
