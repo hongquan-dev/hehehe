@@ -23,6 +23,5 @@
 ## Đang chờ
 - API `fd-restaurant-service` cho danh mục/quán/món/voucher: đường dẫn trong `features/catalog/api/catalog.api.ts`
   là dự kiến.
-- Kiểm tra gateway có route `/auth/**` → `:8081` không. Nếu chưa có, đổi `VITE_PROXY_TARGET`.
 - Backend chưa xác nhận đã bật springdoc → chưa chạy `npm run api:gen`.
 - Chưa có: trang chi tiết quán, thanh toán, đơn hàng (đặt dưới `ProtectedRoute`, xem comment trong `app/router.tsx`).

@@ -24,5 +24,5 @@ Mọi việc tạo hoặc sửa giao diện (trang, component, màu, chữ, bố
 npm run typecheck && npm run lint && npx prettier --check "src/**/*.{ts,tsx,css}" && npm run build
 ```
 
-Dev gọi backend thật mặc định (`VITE_USE_MOCK=false`, proxy thẳng tới fd-auth-service :8081). Bật mock bằng
-`VITE_USE_MOCK=true` trong `.env.local`, tài khoản thử `demo` / `matkhau123`.
+Dev gọi backend thật mặc định (`VITE_USE_MOCK=false`, proxy tới fd-gateway-service :8080, gateway chuyển sang
+fd-auth-service :8081). Bật mock bằng `VITE_USE_MOCK=true` trong `.env.local`, tài khoản thử `demo` / `matkhau123`.

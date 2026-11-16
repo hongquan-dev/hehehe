@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
-  const backend = env.VITE_PROXY_TARGET || 'http://localhost:8081'
+  const backend = env.VITE_PROXY_TARGET || 'http://localhost:8080'
 
   return {
     plugins: [react()],
@@ -31,7 +31,7 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       port: 5173,
-      // Mọi request /api/** được chuyển tới VITE_PROXY_TARGET (hiện là fd-auth-service), bỏ tiền tố /api.
+      // Mọi request /api/** được chuyển tới VITE_PROXY_TARGET (fd-gateway-service), bỏ tiền tố /api.
       // Trình duyệt chỉ thấy origin của Vite nên cookie HttpOnly của fd-auth-service hoạt động, không vướng CORS.
       proxy: {
         '/api': {
