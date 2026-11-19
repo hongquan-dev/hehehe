@@ -1,8 +1,8 @@
 import { z } from 'zod'
 
 // Cùng quy tắc với AuthValidator / IdentifierNormalizer của fd-auth-service
-const USERNAME = /^[a-z0-9._]{3,30}$/
-const EMAIL = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/
+const USERNAME = /^[a-z][a-z0-9._]{2,29}$/
+const EMAIL = /^[a-z0-9_%+-]+(?:\.[a-z0-9_%+-]+)*@(?:[a-z0-9]+(?:-+[a-z0-9]+)*\.)+[a-z]{2,}$/
 const VN_PHONE = /^(?:\+?84|0)[35789]\d{8}$/
 
 export const loginSchema = z.object({
@@ -16,7 +16,10 @@ export const registerSchema = z
       .string()
       .trim()
       .toLowerCase()
-      .regex(USERNAME, 'Từ 3–30 ký tự, chỉ gồm chữ thường không dấu, số, dấu chấm hoặc gạch dưới'),
+      .regex(
+        USERNAME,
+        'Từ 3–30 ký tự, bắt đầu bằng chữ cái, chỉ gồm chữ thường không dấu, số, dấu chấm hoặc gạch dưới',
+      ),
     email: z
       .string()
       .trim()

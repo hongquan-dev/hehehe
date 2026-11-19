@@ -25,13 +25,13 @@ npm run dev          # http://localhost:5173
 ```
 
 Mặc định `VITE_USE_MOCK=false` (`.env.development`), nên app gọi **backend thật**. Cần chạy trước
-`fd-gateway-service` (:8080) và `fd-auth-service` (:8081, cần PostgreSQL) trong `../hahaha`. Mọi request `/api/**`
+`fd-gateway-service` (:8090) và `fd-auth-service` (:8081, cần PostgreSQL) trong `../hahaha`. Mọi request `/api/**`
 được Vite proxy tới gateway (`VITE_PROXY_TARGET`) sau khi bỏ tiền tố `/api`, rồi gateway chuyển `/auth/**` sang
 `fd-auth-service`; cookie `refresh_token` (`Path=/auth`) được đổi thành `Path=/api/auth` để trình duyệt gửi kèm.
 Vì frontend và API chạy cùng origin nên cookie HttpOnly của `fd-auth-service` hoạt động, không gặp lỗi CORS.
 
-Sau khi đăng nhập, trang chủ là trang kiểm tra phiên: gọi API thử `GET /auth/test/ping`, làm mới phiên bằng
-`POST /auth/refresh`, đếm ngược thời hạn access token và ghi nhật ký request. Muốn thấy access token hết hạn
+Sau khi đăng nhập, trang chủ là trang kiểm tra phiên: làm mới phiên bằng `POST /auth/refresh`, gọi
+`GET /order/test/auth-grpc` (order-service hỏi auth-service qua gRPC) và ghi nhật ký request. Muốn thấy access token hết hạn
 nhanh, đặt `auth.jwt.access-ttl=1m` trong `application.properties` của `fd-auth-service` khi thử.
 
 Chạy không cần backend: tạo file `.env.local` với `VITE_USE_MOCK=true`, app dùng **dữ liệu giả**.

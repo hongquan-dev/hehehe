@@ -23,7 +23,7 @@ export interface HttpLogEntry {
   /** Thời điểm có kết quả, `Date.now()` */
   at: number
   method: string
-  /** Path không có tiền tố `/api`, vd `/auth/test/ping` */
+  /** Path không có tiền tố `/api`, vd `/auth/me` */
   url: string
   /** 0 nếu không tới được máy chủ */
   status: number
@@ -68,11 +68,22 @@ let refreshing: Promise<void> | null = null
 /**
  * `POST /auth/refresh`: đổi refresh token lấy cặp token mới (cookie). Request bị 401 tự gọi hàm này; nút "Làm mới
  * phiên" cũng gọi chung để không bao giờ có hai lần refresh song song (lần sau sẽ dùng refresh token đã bị thay).
+ *
+ * 409 `REFRESH_CONFLICT` được coi là thành công: một tab khác vừa làm mới phiên bằng cùng refresh token, trình duyệt
+ * đã có cookie mới, nên chỉ cần gọi lại request. Cơ chế một-refresh-một-lúc ở trên chỉ có tác dụng trong một tab.
  */
 export function refreshSession() {
   refreshing ??= http
     .post('/auth/refresh')
-    .then(() => undefined)
+    .then(
+      () => undefined,
+      (error: unknown) => {
+        // Lỗi của /auth/refresh đã được interceptor bên dưới đổi thành ApiError (đường dẫn này không tự refresh)
+        const apiError = ApiError.from(error)
+        if (apiError.status === 409 && apiError.code === 'REFRESH_CONFLICT') return
+        throw apiError
+      },
+    )
     .finally(() => {
       refreshing = null
     })

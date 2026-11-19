@@ -25,6 +25,8 @@ import { DEMO_ACCOUNT } from '@/mocks/data/users'
 const ERROR_MESSAGES: Record<string, string> = {
   INVALID_CREDENTIALS: 'Sai tài khoản hoặc mật khẩu',
   ACCOUNT_DISABLED: 'Tài khoản đã bị khoá. Liên hệ tổng đài để được hỗ trợ.',
+  TOO_MANY_LOGIN_ATTEMPTS: 'Bạn đã nhập sai quá nhiều lần. Vui lòng thử lại sau ít phút.',
+  TOO_MANY_REQUESTS: 'Bạn thao tác quá nhanh. Vui lòng thử lại sau ít phút.',
 }
 
 export function LoginForm() {

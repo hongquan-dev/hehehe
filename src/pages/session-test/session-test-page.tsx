@@ -5,12 +5,7 @@ import { Button } from '@/components/ui/button'
 import { useLogout } from '@/features/auth/hooks/use-auth'
 import { useAuthStore } from '@/features/auth/store/auth.store'
 import { RequestLog } from '@/features/session-test/components/request-log'
-import { TokenCountdown } from '@/features/session-test/components/token-countdown'
-import {
-  useAuthCall,
-  usePing,
-  useRefreshSession,
-} from '@/features/session-test/hooks/use-session-test'
+import { useAuthCall, useRefreshSession } from '@/features/session-test/hooks/use-session-test'
 import { useRequestLogStore } from '@/features/session-test/store/request-log.store'
 import type { AuthCallResult } from '@/features/session-test/types'
 import { ApiError } from '@/lib/api-error'
@@ -18,17 +13,9 @@ import { ApiError } from '@/lib/api-error'
 /** Trang chủ sau khi đăng nhập: kiểm tra access token, refresh token và đăng xuất với backend thật. */
 export default function SessionTestPage() {
   const user = useAuthStore((s) => s.user)
-  const ping = usePing()
   const refresh = useRefreshSession()
   const logout = useLogout()
-  const httpCall = useAuthCall('HTTP')
-  const grpcCall = useAuthCall('gRPC')
-
-  const callPing = async () => {
-    const result = await ping.refetch()
-    if (result.isError) toast.error(ApiError.from(result.error).message)
-    else toast.success('Gọi API thành công')
-  }
+  const grpcCall = useAuthCall()
 
   const refreshSession = () =>
     refresh.mutate(undefined, {
@@ -36,9 +23,9 @@ export default function SessionTestPage() {
       onError: (error) => toast.error(ApiError.from(error).message),
     })
 
-  const callAuth = (call: typeof httpCall) =>
-    call.mutate(undefined, {
-      onSuccess: (result) => toast.success(`Đã lấy tài khoản qua ${result.transport}`),
+  const callAuth = () =>
+    grpcCall.mutate(undefined, {
+      onSuccess: () => toast.success('Đã lấy tài khoản qua gRPC'),
       onError: (error) => toast.error(ApiError.from(error).message),
     })
 
@@ -75,67 +62,31 @@ export default function SessionTestPage() {
       <main className="container pb-16 pt-6">
         <h1 className="text-3xl font-extrabold sm:text-4xl">Kiểm tra phiên đăng nhập</h1>
         <p className="mt-2 max-w-xl text-sm text-muted-foreground">
-          Gọi một API cần đăng nhập để xem access token còn hạn bao lâu. Khi token hết hạn, trình
-          duyệt tự dùng refresh token để lấy token mới rồi gọi lại, bạn không phải đăng nhập lại.
+          Gọi một API cần đăng nhập qua gateway. Khi access token hết hạn, trình duyệt tự dùng
+          refresh token để lấy token mới rồi gọi lại, bạn không phải đăng nhập lại.
         </p>
 
-        <div className="mt-8 grid items-start gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
-          <TokenCountdown
-            ping={ping.data}
-            receivedAt={ping.dataUpdatedAt}
-            isLoading={ping.isPending}
-            errorMessage={ping.isError ? ApiError.from(ping.error).message : null}
-          />
-
-          <section aria-label="Thao tác" className="divide-y">
-            <Action
-              title="Gọi API cần đăng nhập"
-              description="GET /auth/test/ping trả về chủ và thời hạn của access token. Token hết hạn thì request bị từ chối với 401, rồi tự làm mới phiên và gọi lại."
-            >
-              <Button onClick={callPing} disabled={ping.isFetching}>
-                {ping.isFetching && <LoaderCircle className="animate-spin" aria-hidden />}
-                Gọi API thử
-              </Button>
-            </Action>
-            <Action
-              title="Làm mới phiên ngay"
-              description="POST /auth/refresh đổi refresh token lấy access token và refresh token mới, không cần chờ hết hạn. Refresh token cũ không dùng lại được."
-            >
-              <Button variant="outline" onClick={refreshSession} disabled={refresh.isPending}>
-                {refresh.isPending && <LoaderCircle className="animate-spin" aria-hidden />}
-                Làm mới phiên
-              </Button>
-            </Action>
-            <Action
-              title="Gọi sang dịch vụ khác qua HTTP và gRPC"
-              description="GET /order/test/auth-http và /order/test/auth-grpc đi qua gateway (kiểm tra access token) tới order-service, rồi order-service hỏi auth-service tài khoản của bạn. Hai cách gọi phải trả về cùng một tài khoản."
-            >
-              <div className="flex flex-wrap gap-3">
-                <Button
-                  variant="outline"
-                  onClick={() => callAuth(httpCall)}
-                  disabled={httpCall.isPending}
-                >
-                  {httpCall.isPending && <LoaderCircle className="animate-spin" aria-hidden />}
-                  Gọi qua HTTP
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => callAuth(grpcCall)}
-                  disabled={grpcCall.isPending}
-                >
-                  {grpcCall.isPending && <LoaderCircle className="animate-spin" aria-hidden />}
-                  Gọi qua gRPC
-                </Button>
-              </div>
-              <AuthCallResults
-                results={[httpCall.data, grpcCall.data].filter(
-                  (r): r is AuthCallResult => r !== undefined,
-                )}
-              />
-            </Action>
-          </section>
-        </div>
+        <section aria-label="Thao tác" className="mt-8 max-w-2xl divide-y">
+          <Action
+            title="Làm mới phiên ngay"
+            description="POST /auth/refresh đổi refresh token lấy access token và refresh token mới, không cần chờ hết hạn. Refresh token cũ không dùng lại được."
+          >
+            <Button variant="outline" onClick={refreshSession} disabled={refresh.isPending}>
+              {refresh.isPending && <LoaderCircle className="animate-spin" aria-hidden />}
+              Làm mới phiên
+            </Button>
+          </Action>
+          <Action
+            title="Gọi sang dịch vụ khác qua gRPC"
+            description="GET /order/test/auth-grpc đi qua gateway (kiểm tra access token) tới order-service, rồi order-service hỏi auth-service tài khoản của bạn qua gRPC."
+          >
+            <Button variant="outline" onClick={callAuth} disabled={grpcCall.isPending}>
+              {grpcCall.isPending && <LoaderCircle className="animate-spin" aria-hidden />}
+              Gọi qua gRPC
+            </Button>
+            {grpcCall.data && <AuthCallResultRow result={grpcCall.data} />}
+          </Action>
+        </section>
 
         <RequestLog />
       </main>
@@ -143,24 +94,18 @@ export default function SessionTestPage() {
   )
 }
 
-// Kết quả lần gọi gần nhất của mỗi cách gọi, để so thời gian và thấy hai bên trả về cùng một tài khoản
-function AuthCallResults({ results }: { results: AuthCallResult[] }) {
-  if (results.length === 0) return null
+// Kết quả lần gọi gần nhất: tài khoản auth-service trả về và thời gian của lời gọi gRPC
+function AuthCallResultRow({ result }: { result: AuthCallResult }) {
   return (
-    <dl className="mt-4 divide-y border-y text-sm">
-      {results.map((result) => (
-        <div
-          key={result.transport}
-          className="grid grid-cols-[3.5rem_minmax(0,1fr)_auto] items-baseline gap-x-3 py-2.5"
-        >
-          <dt className="font-semibold">{result.transport}</dt>
-          <dd className="min-w-0 truncate">
-            {result.user.username}
-            <span className="text-[13px] text-muted-foreground"> #{result.user.id}</span>
-          </dd>
-          <dd className="tabular-nums text-muted-foreground">{result.elapsedMs} ms</dd>
-        </div>
-      ))}
+    <dl className="mt-4 border-y text-sm">
+      <div className="grid grid-cols-[3.5rem_minmax(0,1fr)_auto] items-baseline gap-x-3 py-2.5">
+        <dt className="font-semibold">gRPC</dt>
+        <dd className="min-w-0 truncate">
+          {result.user.username}
+          <span className="text-[13px] text-muted-foreground"> #{result.user.id}</span>
+        </dd>
+        <dd className="tabular-nums text-muted-foreground">{result.elapsedMs} ms</dd>
+      </div>
     </dl>
   )
 }

@@ -18,7 +18,7 @@
 - Bộ lọc trang chủ lưu trên URL (`q`, `cat`, `sort`, `freeship`, `top`, `fast`).
 - Giỏ hàng chỉ chứa món của một quán. Thêm món quán khác thì hỏi "Tạo giỏ mới".
 - Đăng ký xong tự gọi login (BE chỉ trả 201 + user).
-- Proxy dev: `/api/**` → gateway `:8080`, bỏ tiền tố `/api`.
+- Proxy dev: `/api/**` → gateway `:8090`, bỏ tiền tố `/api`.
 
 ## Đang chờ
 - API `fd-restaurant-service` cho danh mục/quán/món/voucher: đường dẫn trong `features/catalog/api/catalog.api.ts`
