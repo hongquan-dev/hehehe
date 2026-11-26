@@ -81,7 +81,7 @@ Dùng lại trước, tự viết sau. Component shadcn/ui ở `src/components/u
 - `Button`: biến thể `default` (ớt, cho hành động chính, mỗi vùng chỉ một), `outline`, `secondary`, `ghost`, `link`,
   `destructive`. Kích thước `sm` / `default` / `lg` / `icon`.
 - `Badge`: thêm biến thể riêng `promo` (nghệ) và `freeship` (húng quế nhạt).
-- `Input`, `Form` (RHF + Zod), `Sheet` (ngăn kéo giỏ hàng, trượt từ dưới trên di động), `DropdownMenu`,
+- `Input`, `Textarea` (cùng kiểu với `Input`, cho nội dung nhiều dòng), `Form` (RHF + Zod), `Sheet` (ngăn kéo giỏ hàng, trượt từ dưới trên di động), `DropdownMenu`,
   `Skeleton`, `Avatar`, `Checkbox`, `Separator`, Toast qua `sonner`.
 - Riêng của dự án (`src/components/common/`): `FoodImage` (ảnh món có trạng thái lỗi hiển thị icon dao nĩa),
   `Logo`, `PageLoader`, `DataTable`.

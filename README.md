@@ -25,7 +25,9 @@ npm run dev          # http://localhost:5173
 ```
 
 Mặc định `VITE_USE_MOCK=false` (`.env.development`), nên app gọi **backend thật**. Cần chạy trước
-`fd-gateway-service` (:8090) và `fd-auth-service` (:8081, cần PostgreSQL) trong `../hahaha`. Mọi request `/api/**`
+`fd-gateway-service` (:8090) và `fd-auth-service` (:8081, cần PostgreSQL) trong `../hahaha`; kênh nhà hàng cần thêm
+`fd-restaurant-service` (:8082). Mở app bằng `http://localhost:5173` (không phải `127.0.0.1`): auth chỉ nhận đăng
+nhập từ origin này. Mọi request `/api/**`
 được Vite proxy tới gateway (`VITE_PROXY_TARGET`) sau khi bỏ tiền tố `/api`, rồi gateway chuyển `/auth/**` sang
 `fd-auth-service`; cookie `refresh_token` (`Path=/auth`) được đổi thành `Path=/api/auth` để trình duyệt gửi kèm.
 Vì frontend và API chạy cùng origin nên cookie HttpOnly của `fd-auth-service` hoạt động, không gặp lỗi CORS.
@@ -36,7 +38,9 @@ nhanh, đặt `auth.jwt.access-ttl=1m` trong `application.properties` của `fd-
 
 Chạy không cần backend: tạo file `.env.local` với `VITE_USE_MOCK=true`, app dùng **dữ liệu giả**.
 Tài khoản thử: `demo` / `matkhau123` (đăng nhập bằng `demo@angi.vn` hoặc `0901 234 567` cũng được).
-Tài khoản `bi.khoa` / `matkhau123` dùng để thử trường hợp tài khoản bị khoá.
+Tài khoản `bi.khoa` / `matkhau123` dùng để thử trường hợp tài khoản bị khoá. Tài khoản `chu.quan` / `matkhau123` là
+chủ quán, đăng nhập vào thẳng kênh nhà hàng. Với backend thật, tài khoản chủ quán tạo bằng cách đăng ký rồi đổi role
+trong database (xem `postman/README.md` của backend).
 
 | Lệnh | Việc |
 | --- | --- |
@@ -61,6 +65,7 @@ src/
 ├── features/            # Mỗi nghiệp vụ một thư mục, tự chứa
 │   ├── auth/            #   api/ hooks/ store/ components/ schemas.ts types.ts
 │   ├── catalog/         #   quán, món, danh mục, voucher
+│   ├── merchant/        #   kênh nhà hàng: quán của chủ quán, tạo quán
 │   └── cart/            #   giỏ hàng (Zustand + localStorage)
 ├── hooks/               # Hook dùng chung: useDebounce, useMealTime
 ├── lib/                 # http (axios + refresh token), api-error, query-client, format, utils
@@ -93,6 +98,11 @@ src/
 | `/` | Trang chủ | Tìm kiếm, voucher, món bán chạy, danh sách quán có lọc/sắp xếp (lưu trên URL), giỏ hàng |
 | `/login` | Đăng nhập | username / email / SĐT; lỗi theo field, `INVALID_CREDENTIALS`, `ACCOUNT_DISABLED` |
 | `/register` | Đăng ký | Validate giống `AuthValidator`; đăng ký xong tự đăng nhập |
+| `/merchant` | Kênh nhà hàng | Chỉ role `RESTAURANT_OWNER` (`RoleRoute`); chưa có quán thì form tạo quán, có rồi thì tổng quan quán |
+
+**Trang theo role:** sau khi đăng nhập, mỗi role vào trang chủ của mình (`routes/role-home.ts`): chủ quán vào
+`/merchant`, role khác vào `/`. Vào trang không dành cho role của mình thì bị đưa về trang chủ của role đó. Đây chỉ là
+chọn giao diện; backend vẫn tự kiểm tra role của từng API.
 
 API của `fd-restaurant-service` trong `features/catalog/api/catalog.api.ts` mới là đường dẫn **dự kiến**. Cần
 sửa lại cho khớp khi backend xong.

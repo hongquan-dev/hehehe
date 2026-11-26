@@ -2,7 +2,7 @@ import { createBrowserRouter } from 'react-router-dom'
 import { AuthLayout } from '@/components/layout/auth-layout'
 import { MainLayout } from '@/components/layout/main-layout'
 import { RouteError } from '@/app/route-error'
-import { GuestRoute, ProtectedRoute } from '@/routes/guards'
+import { GuestRoute, ProtectedRoute, RoleHomeRedirect, RoleRoute } from '@/routes/guards'
 import { paths } from '@/routes/paths'
 
 // Mỗi trang tách thành chunk riêng (lazy) để tải lần đầu nhẹ hơn
@@ -16,12 +16,27 @@ export const router = createBrowserRouter(
       errorElement: <RouteError />,
       children: [
         {
-          // Trang chủ là trang kiểm tra phiên với backend thật, nên cần đăng nhập
+          // Trang chủ là trang kiểm tra phiên với backend thật, nên cần đăng nhập. Chủ quán được chuyển sang /merchant
           element: <ProtectedRoute />,
           children: [
             {
-              path: paths.home,
-              lazy: page(() => import('@/pages/session-test/session-test-page')),
+              element: <RoleHomeRedirect />,
+              children: [
+                {
+                  path: paths.home,
+                  lazy: page(() => import('@/pages/session-test/session-test-page')),
+                },
+              ],
+            },
+          ],
+        },
+        {
+          // Kênh nhà hàng: chỉ tài khoản chủ quán
+          element: <RoleRoute roles={['RESTAURANT_OWNER']} />,
+          children: [
+            {
+              path: paths.merchant,
+              lazy: page(() => import('@/pages/merchant/merchant-home-page')),
             },
           ],
         },

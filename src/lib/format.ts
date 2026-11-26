@@ -21,6 +21,17 @@ const clock = new Intl.DateTimeFormat('vi-VN', {
 /** Giờ địa phương có giây: "2026-11-13T03:18:08Z" -> "10:18:08" */
 export const formatClock = (value: string | number | Date) => clock.format(new Date(value))
 
+const day = new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
+
+/** Ngày địa phương: "2026-11-26T15:53:46" -> "26/11/2026" */
+export const formatDate = (value: string | number | Date) => day.format(new Date(value))
+
+/** Số di động dạng backend lưu sang dạng quen đọc: "+84912345678" -> "0912 345 678". Dạng khác giữ nguyên */
+export const formatPhone = (value: string) => {
+  const match = /^\+84(\d{3})(\d{3})(\d{3})$/.exec(value)
+  return match ? `0${match[1]} ${match[2]} ${match[3]}` : value
+}
+
 /** 12400 -> "12,4k", 530 -> "530" (kiểu viết quen thuộc trên app đồ ăn) */
 export const formatCompact = (value: number) =>
   value < 1000

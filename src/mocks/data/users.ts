@@ -33,4 +33,17 @@ export const seedAccounts: MockAccount[] = [
       createdAt: '2026-03-02T10:00:00',
     },
   },
+  {
+    // Chủ quán chưa có quán, để thử kênh nhà hàng và form tạo quán
+    password: 'matkhau123',
+    user: {
+      id: 3,
+      username: 'chu.quan',
+      email: 'chuquan@angi.vn',
+      phoneNumber: '+84912345678',
+      role: 'RESTAURANT_OWNER',
+      active: true,
+      createdAt: '2026-11-20T09:00:00',
+    },
+  },
 ]
